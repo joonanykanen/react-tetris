@@ -1,0 +1,14 @@
+disable_response_storage = true
+show_reasoning_content = true
+
+[model_providers.local]
+name = "local"
+base_url = "http://192.168.0.201:8000/v1"
+
+[profiles.oss]
+model = "gpt-oss:120b"
+model_provider = "local"
+model_reasoning_effort = "high"
+
+[projects."/Users/joona/Developer/react-tetris"]
+trust_level = "trusted"
