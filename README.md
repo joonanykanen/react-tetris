@@ -143,11 +143,16 @@ Standard 7 tetromino shapes with colors:
 
 ## 🚀 Build & Deploy
 
+### Live Demo
+🎮 **Play the game online**: [https://joonanykanen.github.io/react-tetris/](https://joonanykanen.github.io/react-tetris/)
+
+### Local Build
+
 ```bash
 # Build for production
 pnpm build
 
-# Preview production build
+# Preview production build locally
 pnpm preview
 
 # Run linter
