@@ -4,7 +4,7 @@ import { useEffect, useRef } from 'react';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { gameStatusAtom } from './atoms/gameStatusAtom';
 import { lastDropTimeAtom, dropIntervalAtom, updateLastDropTimeAtom } from './atoms/gameLoopAtom';
-import { moveLeftAtom, moveRightAtom, moveDownAtom, rotatePieceAtom, hardDropAtom, gameTickAtom } from './atoms/gameActionsAtom';
+import { moveLeftAtom, moveRightAtom, moveDownAtom, rotatePieceAtom, hardDropAtom, gameTickAtom, pauseGameAtom, restartGameAtom } from './atoms/gameActionsAtom';
 import GameBoard from './components/GameBoard';
 import NextPiece from './components/NextPiece';
 import ScoreDisplay from './components/ScoreDisplay';
@@ -22,6 +22,8 @@ export default function App() {
   const rotatePiece = useSetAtom(rotatePieceAtom);
   const hardDrop = useSetAtom(hardDropAtom);
   const gameTick = useSetAtom(gameTickAtom);
+  const pauseGame = useSetAtom(pauseGameAtom);
+  const restartGame = useSetAtom(restartGameAtom);
   
   const animationFrameRef = useRef<number | undefined>(undefined);
   const lastTimeRef = useRef<number>(0);
@@ -63,38 +65,41 @@ export default function App() {
   // Keyboard controls
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (gameStatus !== 'playing') return;
-
       switch (event.key) {
         case 'ArrowLeft':
+          if (gameStatus !== 'playing') return;
           event.preventDefault();
           moveLeft();
           break;
         case 'ArrowRight':
+          if (gameStatus !== 'playing') return;
           event.preventDefault();
           moveRight();
           break;
         case 'ArrowDown':
+          if (gameStatus !== 'playing') return;
           event.preventDefault();
           moveDown();
           break;
         case 'ArrowUp':
+          if (gameStatus !== 'playing') return;
           event.preventDefault();
           rotatePiece();
           break;
         case ' ':
+          if (gameStatus !== 'playing') return;
           event.preventDefault();
           hardDrop();
           break;
         case 'p':
         case 'P':
           event.preventDefault();
-          // Pause functionality is handled by Controls component
+          pauseGame();
           break;
         case 'r':
         case 'R':
           event.preventDefault();
-          // Restart functionality is handled by Controls component
+          restartGame();
           break;
       }
     };
@@ -103,7 +108,7 @@ export default function App() {
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [gameStatus, moveLeft, moveRight, moveDown, rotatePiece, hardDrop]);
+  }, [gameStatus, moveLeft, moveRight, moveDown, rotatePiece, hardDrop, pauseGame, restartGame]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center p-4">
