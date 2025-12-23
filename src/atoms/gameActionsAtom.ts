@@ -214,7 +214,7 @@ export const pauseGameAtom = atom(null, (get, set) => {
     set(setGameStatusAtom, 'paused');
   } else if (status === 'paused') {
     set(setGameStatusAtom, 'playing');
-    set(updateLastDropTimeAtom, Date.now());
+    set(updateLastDropTimeAtom, 0);
   }
 });
 
