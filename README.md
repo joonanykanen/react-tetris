@@ -20,6 +20,7 @@ A fully-featured Tetris game built with React, TypeScript, Jotai for state manag
 - **Pause/Resume**: Pause the game at any time
 - **Modern UI**: Beautiful gradient styling with Tailwind CSS
 - **Keyboard Controls**: Full keyboard support for all game actions
+- **Sound Effects**: Synthesized sound effects using Web Audio API (no external dependencies)
 
 ## 🛠️ Tech Stack
 
@@ -79,17 +80,20 @@ react-tetris/
 │   │   ├── gameStatusAtom.ts    # Game status (idle/playing/paused/gameover)
 │   │   ├── scoreAtom.ts         # Score, level, lines
 │   │   ├── gameLoopAtom.ts      # Game loop timing
-│   │   └── gameActionsAtom.ts   # Game action handlers
+│   │   ├── gameActionsAtom.ts   # Game action handlers
+│   │   └── soundAtom.ts         # Sound settings
 │   ├── components/         # React components
 │   │   ├── GameBoard.tsx   # Main game board display
 │   │   ├── NextPiece.tsx   # Next piece preview
 │   │   ├── ScoreDisplay.tsx    # Score, level, lines display
-│   │   └── Controls.tsx    # Game control buttons
+│   │   ├── Controls.tsx    # Game control buttons
+│   │   └── SoundToggle.tsx # Sound on/off toggle
 │   ├── utils/              # Game logic utilities
 │   │   ├── tetrominos.ts   # Tetromino shapes and colors
 │   │   ├── collision.ts    # Collision detection
 │   │   ├── movement.ts     # Piece movement logic
-│   │   └── lineClearing.ts # Line clearing logic
+│   │   ├── lineClearing.ts # Line clearing logic
+│   │   └── sound.ts        # Sound effects using Web Audio API
 │   ├── App.tsx             # Main application component
 │   ├── main.tsx            # Application entry point
 │   └── index.css           # Global styles
@@ -112,6 +116,24 @@ The game uses Jotai's atomic state management for efficient and predictable stat
 - **gameStatusAtom**: Game state ('idle' | 'playing' | 'paused' | 'gameover')
 - **scoreAtom**: Current score, level, and lines cleared
 - **gameLoopAtom**: Timing for automatic piece drops
+- **soundAtom**: Sound enabled/disabled state
+
+### Sound System
+
+The game features a synthesized sound system using the native Web Audio API (no external audio files or dependencies):
+
+| Sound Event | Trigger |
+|-------------|---------|
+| Move | Left/Right arrow keys |
+| Rotate | Up arrow key |
+| Soft Drop | Down arrow key |
+| Hard Drop | Space bar |
+| Lock | Piece lands on board |
+| Line Clear | Lines are cleared |
+| Level Up | Level increases |
+| Game Over | No space to spawn piece |
+| Start | Game starts |
+| Pause | Pause/Resume toggle |
 
 ### Game Loop
 
