@@ -1,6 +1,8 @@
 // Score, level, and lines atoms for Tetris game
 
 import { atom } from 'jotai';
+import { soundEnabledAtom } from './soundAtom';
+import { playSound } from '../utils/sound';
 
 // Score atom - stores the current score
 export const scoreAtom = atom<number>(0);
@@ -35,9 +37,17 @@ export const addScoreAtom = atom(null, (get, set, points: number) => {
 export const addLinesAtom = atom(null, (get, set, lines: number) => {
   const currentLines = get(linesAtom);
   const newLines = currentLines + lines;
+  const soundEnabled = get(soundEnabledAtom);
+  
   set(linesAtom, newLines);
   
   // Update level based on lines cleared
+  const currentLevel = get(levelAtom);
   const newLevel = Math.floor(newLines / 10) + 1;
+  
+  if (newLevel > currentLevel && soundEnabled) {
+    playSound('levelUp');
+  }
+  
   set(levelAtom, newLevel);
 });
