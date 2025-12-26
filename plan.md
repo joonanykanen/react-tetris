@@ -1,196 +1,125 @@
-# Tetris Game Architecture Plan
+# Sound Implementation Plan for React Tetris
 
 ## Overview
-A complete Tetris game implementation using React, Jotai for state management, and Tailwindcss for styling.
+Add sound effects to the Tetris game using Web Audio API (no external dependencies) following KISS principles.
 
-## System Architecture
+## Sound Events
 
-```mermaid
-graph TD
-    A[App Component] --> B[Game Board Component]
-    A --> C[Next Piece Preview]
-    A --> D[Score/Level Display]
-    A --> E[Controls Component]
-    
-    B --> F[Jotai Atoms]
-    C --> F
-    D --> F
-    E --> F
-    
-    F --> G[Game Logic Utilities]
-    G --> H[Collision Detection]
-    G --> I[Rotation Logic]
-    G --> J[Line Clearing]
-    G --> K[Piece Movement]
-    
-    L[Game Loop] --> F
-    M[Keyboard Events] --> E
-```
+| Event | Sound Type | Frequency | Duration | Trigger |
+|-------|------------|-----------|----------|---------|
+| Move | Short click | 400Hz | 50ms | Left/Right arrow |
+| Rotate | Quick blip | 600Hz | 30ms | Up arrow |
+| Soft Drop | Low thud | 200Hz | 40ms | Down arrow |
+| Hard Drop | Heavy thud | 150Hz | 60ms | Space bar |
+| Lock Piece | Click | 300Hz | 50ms | Piece lands |
+| Line Clear | Rising tone | 400-800Hz | 200ms | Lines cleared |
+| Level Up | Victory fanfare | 523-1046Hz | 500ms | Level increases |
+| Game Over | Descending tone | 400-100Hz | 1000ms | Game ends |
+| Start Game | Start chime | 440-880Hz | 300ms | Game starts |
+| Pause | Toggle sound | 800Hz | 100ms | Pause toggle |
 
-## State Management (Jotai Atoms)
-
-### Core Game State
-- **boardAtom**: 10x20 grid representing the game board
-- **currentPieceAtom**: Currently falling piece (shape, position, rotation)
-- **nextPieceAtom**: Next piece to spawn
-- **gameStatusAtom**: 'idle' | 'playing' | 'paused' | 'gameover'
-
-### Scoring State
-- **scoreAtom**: Current score
-- **levelAtom**: Current level (affects drop speed)
-- **linesAtom**: Total lines cleared
-
-### Timing State
-- **lastDropTimeAtom**: Timestamp of last piece drop
-- **dropIntervalAtom**: Time between automatic drops (decreases with level)
-
-## Tetromino Shapes
-
-Standard 7 tetromino shapes with colors:
-
-1. **I-piece**: Cyan - 4x1 line
-2. **O-piece**: Yellow - 2x2 square
-3. **T-piece**: Purple - T-shape
-4. **S-piece**: Green - S-shape
-5. **Z-piece**: Red - Z-shape
-6. **J-piece**: Blue - J-shape
-7. **L-piece**: Orange - L-shape
-
-## Game Logic Functions
-
-### Collision Detection
-- Check if piece position is valid within bounds
-- Check if piece collides with existing blocks on board
-
-### Rotation
-- Rotate piece 90 degrees clockwise
-- Apply wall kicks if rotation causes collision
-
-### Movement
-- Move piece left/right/down
-- Hard drop (instant to bottom)
-- Soft drop (accelerated fall)
-
-### Line Clearing
-- Detect completed rows
-- Remove filled rows
-- Move remaining rows down
-- Update score based on lines cleared
-
-### Spawning
-- Generate new piece at top center
-- Check for game over (spawn collision)
-
-## Component Structure
-
-### App Component
-- Main container with Tailwind layout
-- Coordinates all game components
-- Handles keyboard input
-
-### Game Board Component
-- Renders 10x20 grid
-- Displays locked pieces and current piece
-- Uses Tailwind grid layout
-
-### Next Piece Preview
-- Shows upcoming piece
-- 4x4 preview grid
-
-### Score Display
-- Shows current score, level, lines
-- Styled with Tailwind
-
-### Controls Component
-- Start/Pause/Restart buttons
-- Mobile-friendly controls (optional)
-
-## Game Loop
-
-```mermaid
-sequenceDiagram
-    participant Timer
-    participant Game Loop
-    participant State
-    participant Board
-    
-    Timer->>Game Loop: Tick
-    Game Loop->>State: Check game status
-    State-->>Game Loop: Playing
-    Game Loop->>State: Get last drop time
-    Game Loop->>State: Get drop interval
-    Game Loop->>Game Loop: Time elapsed?
-    Game Loop->>State: Move piece down
-    State->>Board: Check collision
-    Board-->>State: Collision?
-    State->>State: Lock piece
-    State->>State: Clear lines
-    State->>State: Spawn new piece
-    State->>State: Check game over
-```
-
-## Keyboard Controls
-
-- **Arrow Left/Right**: Move piece horizontally
-- **Arrow Down**: Soft drop (accelerated)
-- **Arrow Up**: Rotate piece
-- **Space**: Hard drop (instant)
-- **P**: Pause/Resume
-- **R**: Restart game
-
-## Scoring System
-
-Standard Tetris scoring:
-- 1 line: 100 points × level
-- 2 lines: 300 points × level
-- 3 lines: 500 points × level
-- 4 lines (Tetris): 800 points × level
-
-Level increases every 10 lines cleared.
-
-## File Structure
+## Architecture
 
 ```
 src/
-├── atoms/
-│   ├── boardAtom.ts
-│   ├── currentPieceAtom.ts
-│   ├── nextPieceAtom.ts
-│   ├── gameStatusAtom.ts
-│   ├── scoreAtom.ts
-│   └── gameLoopAtom.ts
 ├── utils/
-│   ├── tetrominos.ts
-│   ├── collision.ts
-│   ├── rotation.ts
-│   ├── lineClearing.ts
-│   └── movement.ts
-├── components/
-│   ├── GameBoard.tsx
-│   ├── NextPiece.tsx
-│   ├── ScoreDisplay.tsx
-│   └── Controls.tsx
-├── App.tsx
-└── main.tsx
+│   └── sound.ts          # Sound utility with Web Audio API
+├── atoms/
+│   └── soundAtom.ts      # Sound settings atom (on/off)
+└── components/
+    └── SoundToggle.tsx   # Sound on/off button
 ```
 
-## Tailwind Styling Approach
+## Implementation Steps
 
-- Use grid layout for game board (10 columns, 20 rows)
-- Flexbox for overall layout
-- Color classes for tetromino blocks
-- Responsive design considerations
-- Dark theme with neon-style colors
+### 1. Create Sound Utility (`src/utils/sound.ts`)
 
-## Implementation Priority
+```typescript
+// Simple sound manager using Web Audio API
+export const playSound = (type: SoundType): void => {
+  // Implementation using AudioContext
+};
 
-1. Set up Jotai atoms for state management
-2. Define tetromino shapes and colors
-3. Implement core game logic utilities
-4. Create game board component
-5. Add piece movement and controls
-6. Implement game loop
-7. Add scoring and level system
-8. Style with Tailwindcss
-9. Add game over and pause functionality
-10. Polish and test
+export type SoundType = 
+  | 'move'
+  | 'rotate'
+  | 'softDrop'
+  | 'hardDrop'
+  | 'lock'
+  | 'lineClear'
+  | 'levelUp'
+  | 'gameOver'
+  | 'start'
+  | 'pause';
+```
+
+### 2. Create Sound Settings Atom (`src/atoms/soundAtom.ts`)
+
+```typescript
+import { atom } from 'jotai';
+
+export const soundEnabledAtom = atom<boolean>(true);
+```
+
+### 3. Integrate Sounds into Game Actions (`src/atoms/gameActionsAtom.ts`)
+
+Add sound calls at key events:
+- `moveLeftAtom`, `moveRightAtom` → play 'move'
+- `rotatePieceAtom` → play 'rotate'
+- `moveDownAtom` → play 'softDrop'
+- `hardDropAtom` → play 'hardDrop'
+- `lockPieceAtom` → play 'lock'
+- Line clearing in `lockPieceAtom` → play 'lineClear'
+- Level up in `addLinesAtom` → play 'levelUp'
+- Game over in `spawnPieceAtom` → play 'gameOver'
+- `startGameAtom` → play 'start'
+- `pauseGameAtom` → play 'pause'
+
+### 4. Create Sound Toggle Component (`src/components/SoundToggle.tsx`)
+
+```tsx
+import { useAtomValue, useSetAtom } from 'jotai';
+import { soundEnabledAtom } from '../atoms/soundAtom';
+
+export default function SoundToggle() {
+  const soundEnabled = useAtomValue(soundEnabledAtom);
+  const setSoundEnabled = useSetAtom(soundEnabledAtom);
+  
+  return (
+    <button onClick={() => setSoundEnabled(!soundEnabled)}>
+      {soundEnabled ? '🔊' : '🔇'}
+    </button>
+  );
+}
+```
+
+### 5. Update Controls Component (`src/components/Controls.tsx`)
+
+Add SoundToggle to the controls panel.
+
+## KISS Principles Applied
+
+1. **No external dependencies** - Uses native Web Audio API
+2. **Simple synthesized sounds** - No audio files needed
+3. **Centralized sound utility** - Single source of truth
+4. **Minimal integration points** - Only 10 sound events
+5. **Optional feature** - Sound can be toggled on/off
+
+## Files to Create/Modify
+
+| File | Action |
+|------|--------|
+| `src/utils/sound.ts` | Create |
+| `src/atoms/soundAtom.ts` | Create |
+| `src/atoms/gameActionsAtom.ts` | Modify |
+| `src/components/SoundToggle.tsx` | Create |
+| `src/components/Controls.tsx` | Modify |
+| `README.md` | Update |
+
+## Testing Checklist
+
+- [ ] All sound events trigger correctly
+- [ ] Sound toggle works
+- [ ] No sounds when disabled
+- [ ] Sounds work on first user interaction (browser policy)
+- [ ] No audio overlap issues

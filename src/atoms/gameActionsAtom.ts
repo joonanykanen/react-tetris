@@ -13,6 +13,8 @@ import { nextPieceAtom } from './nextPieceAtom';
 import { gameStatusAtom, setGameStatusAtom } from './gameStatusAtom';
 import { scoreAtom, levelAtom, linesAtom, addScoreAtom, addLinesAtom } from './scoreAtom';
 import { lastDropTimeAtom, updateLastDropTimeAtom } from './gameLoopAtom';
+import { soundEnabledAtom } from './soundAtom';
+import { playSound } from '../utils/sound';
 
 // Spawn a new piece
 export const spawnPieceAtom = atom(null, (get, set) => {
@@ -44,6 +46,7 @@ export const spawnPieceAtom = atom(null, (get, set) => {
 export const moveLeftAtom = atom(null, (get, set) => {
   const currentPiece = get(currentPieceAtom);
   const board = get(boardAtom);
+  const soundEnabled = get(soundEnabledAtom);
   
   if (!currentPiece) return;
   
@@ -51,6 +54,7 @@ export const moveLeftAtom = atom(null, (get, set) => {
   
   if (newPosition) {
     set(currentPieceAtom, { ...currentPiece, position: newPosition });
+    if (soundEnabled) playSound('move');
   }
 });
 
@@ -58,6 +62,7 @@ export const moveLeftAtom = atom(null, (get, set) => {
 export const moveRightAtom = atom(null, (get, set) => {
   const currentPiece = get(currentPieceAtom);
   const board = get(boardAtom);
+  const soundEnabled = get(soundEnabledAtom);
   
   if (!currentPiece) return;
   
@@ -65,6 +70,7 @@ export const moveRightAtom = atom(null, (get, set) => {
   
   if (newPosition) {
     set(currentPieceAtom, { ...currentPiece, position: newPosition });
+    if (soundEnabled) playSound('move');
   }
 });
 
@@ -72,6 +78,7 @@ export const moveRightAtom = atom(null, (get, set) => {
 export const moveDownAtom = atom(null, (get, set) => {
   const currentPiece = get(currentPieceAtom);
   const board = get(boardAtom);
+  const soundEnabled = get(soundEnabledAtom);
   
   if (!currentPiece) return;
   
@@ -79,6 +86,7 @@ export const moveDownAtom = atom(null, (get, set) => {
   
   if (newPosition) {
     set(currentPieceAtom, { ...currentPiece, position: newPosition });
+    if (soundEnabled) playSound('softDrop');
   } else {
     // Can't move down, lock the piece
     lockPieceAtom(get, set);
@@ -89,6 +97,7 @@ export const moveDownAtom = atom(null, (get, set) => {
 export const rotatePieceAtom = atom(null, (get, set) => {
   const currentPiece = get(currentPieceAtom);
   const board = get(boardAtom);
+  const soundEnabled = get(soundEnabledAtom);
   
   if (!currentPiece) return;
   
@@ -100,6 +109,7 @@ export const rotatePieceAtom = atom(null, (get, set) => {
       shape: result.shape,
       position: result.position,
     });
+    if (soundEnabled) playSound('rotate');
   }
 });
 
@@ -107,11 +117,14 @@ export const rotatePieceAtom = atom(null, (get, set) => {
 export const hardDropAtom = atom(null, (get, set) => {
   const currentPiece = get(currentPieceAtom);
   const board = get(boardAtom);
+  const soundEnabled = get(soundEnabledAtom);
   
   if (!currentPiece) return;
   
   const landingPosition = getLandingPosition(currentPiece.shape, currentPiece.position, board);
   set(currentPieceAtom, { ...currentPiece, position: landingPosition });
+  
+  if (soundEnabled) playSound('hardDrop');
   
   // Lock the piece immediately
   lockPieceAtom(get, set);
@@ -121,12 +134,15 @@ export const hardDropAtom = atom(null, (get, set) => {
 function lockPieceAtom(get: Getter, set: Setter) {
   const currentPiece = get(currentPieceAtom);
   const board = get(boardAtom);
+  const soundEnabled = get(soundEnabledAtom);
   
   if (!currentPiece) return;
   
   // Lock the piece to the board
   const newBoard = lockPiece(currentPiece.shape, currentPiece.position, currentPiece.color, board);
   set(boardAtom, newBoard);
+  
+  if (soundEnabled) playSound('lock');
   
   // Clear completed lines
   const completedRows = getCompletedRows(newBoard);
@@ -140,11 +156,14 @@ function lockPieceAtom(get: Getter, set: Setter) {
     const points = completedRows.length * 100 * level;
     set(addScoreAtom, points);
     set(addLinesAtom, completedRows.length);
+    
+    if (soundEnabled) playSound('lineClear');
   }
   
   // Spawn new piece
   const nextPieceType = get(nextPieceAtom);
   if (!nextPieceType) {
+    if (soundEnabled) playSound('gameOver');
     set(setGameStatusAtom, 'gameover');
     return;
   }
@@ -154,6 +173,7 @@ function lockPieceAtom(get: Getter, set: Setter) {
   // Check if spawn position is valid
   if (checkSpawnCollision(tetromino.shape, newBoard)) {
     // Game over - can't spawn new piece
+    if (soundEnabled) playSound('gameOver');
     set(setGameStatusAtom, 'gameover');
     return;
   }
@@ -173,6 +193,8 @@ function lockPieceAtom(get: Getter, set: Setter) {
 
 // Start game
 export const startGameAtom = atom(null, (get, set) => {
+  const soundEnabled = get(soundEnabledAtom);
+  
   // Reset all game state
   set(boardAtom, Array(20).fill(null).map(() => Array(10).fill(null)));
   set(currentPieceAtom, null);
@@ -185,9 +207,12 @@ export const startGameAtom = atom(null, (get, set) => {
   // Set game status to playing
   set(setGameStatusAtom, 'playing');
   
+  if (soundEnabled) playSound('start');
+  
   // Spawn first piece
   const nextPieceType = get(nextPieceAtom);
   if (!nextPieceType) {
+    if (soundEnabled) playSound('gameOver');
     set(setGameStatusAtom, 'gameover');
     return;
   }
@@ -210,16 +235,21 @@ export const startGameAtom = atom(null, (get, set) => {
 // Pause game
 export const pauseGameAtom = atom(null, (get, set) => {
   const status = get(gameStatusAtom);
+  const soundEnabled = get(soundEnabledAtom);
   if (status === 'playing') {
     set(setGameStatusAtom, 'paused');
+    if (soundEnabled) playSound('pause');
   } else if (status === 'paused') {
     set(setGameStatusAtom, 'playing');
     set(updateLastDropTimeAtom, 0);
+    if (soundEnabled) playSound('pause');
   }
 });
 
 // Restart game
 export const restartGameAtom = atom(null, (get, set) => {
+  const soundEnabled = get(soundEnabledAtom);
+  
   // Reset all game state
   set(boardAtom, Array(20).fill(null).map(() => Array(10).fill(null)));
   set(currentPieceAtom, null);
@@ -232,9 +262,12 @@ export const restartGameAtom = atom(null, (get, set) => {
   // Set game status to playing
   set(setGameStatusAtom, 'playing');
   
+  if (soundEnabled) playSound('start');
+  
   // Spawn first piece
   const nextPieceType = get(nextPieceAtom);
   if (!nextPieceType) {
+    if (soundEnabled) playSound('gameOver');
     set(setGameStatusAtom, 'gameover');
     return;
   }
