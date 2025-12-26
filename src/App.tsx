@@ -1,10 +1,12 @@
 // Main App component for Tetris game
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useCallback } from 'react';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { gameStatusAtom } from './atoms/gameStatusAtom';
 import { lastDropTimeAtom, dropIntervalAtom, updateLastDropTimeAtom } from './atoms/gameLoopAtom';
 import { moveLeftAtom, moveRightAtom, moveDownAtom, rotatePieceAtom, hardDropAtom, gameTickAtom, pauseGameAtom, restartGameAtom } from './atoms/gameActionsAtom';
+import { useKeyboardInput } from './hooks/useKeyboardInput';
+import { type DASKey } from './config/inputConfig';
 import GameBoard from './components/GameBoard';
 import NextPiece from './components/NextPiece';
 import ScoreDisplay from './components/ScoreDisplay';
@@ -28,6 +30,51 @@ export default function App() {
   const animationFrameRef = useRef<number | undefined>(undefined);
   const lastTimeRef = useRef<number>(0);
 
+  // Handle DAS repeat for movement keys
+  const handleDASRepeat = useCallback((key: DASKey) => {
+    if (gameStatus !== 'playing') return;
+    
+    switch (key) {
+      case 'ArrowLeft':
+        moveLeft();
+        break;
+      case 'ArrowRight':
+        moveRight();
+        break;
+      case 'ArrowDown':
+        moveDown();
+        break;
+    }
+  }, [gameStatus, moveLeft, moveRight, moveDown]);
+
+  // Handle one-shot keys (rotate, hard drop, pause, restart)
+  const handleOneShot = useCallback((key: string) => {
+    if (gameStatus !== 'playing' && key !== 'p' && key !== 'P' && key !== 'r' && key !== 'R') return;
+    
+    switch (key) {
+      case 'ArrowUp':
+        rotatePiece();
+        break;
+      case ' ':
+        hardDrop();
+        break;
+      case 'p':
+      case 'P':
+        pauseGame();
+        break;
+      case 'r':
+      case 'R':
+        restartGame();
+        break;
+    }
+  }, [gameStatus, rotatePiece, hardDrop, pauseGame, restartGame]);
+
+  // Setup keyboard input with DAS
+  const { processInput } = useKeyboardInput({
+    onDASRepeat: handleDASRepeat,
+    onOneShot: handleOneShot,
+  });
+
   // Game loop
   useEffect(() => {
     if (gameStatus !== 'playing') {
@@ -40,6 +87,12 @@ export default function App() {
     const gameLoop = (timestamp: number) => {
       if (lastTimeRef.current === 0) {
         lastTimeRef.current = timestamp;
+      }
+
+      // Process DAS input for smooth movement
+      const dasKeys = processInput(timestamp);
+      for (const key of dasKeys) {
+        handleDASRepeat(key);
       }
 
       // Check if it's time to drop the piece
@@ -60,55 +113,7 @@ export default function App() {
       }
       lastTimeRef.current = 0;
     };
-  }, [gameStatus, lastDropTime, dropInterval, gameTick, updateLastDropTime]);
-
-  // Keyboard controls
-  useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      switch (event.key) {
-        case 'ArrowLeft':
-          if (gameStatus !== 'playing') return;
-          event.preventDefault();
-          moveLeft();
-          break;
-        case 'ArrowRight':
-          if (gameStatus !== 'playing') return;
-          event.preventDefault();
-          moveRight();
-          break;
-        case 'ArrowDown':
-          if (gameStatus !== 'playing') return;
-          event.preventDefault();
-          moveDown();
-          break;
-        case 'ArrowUp':
-          if (gameStatus !== 'playing') return;
-          event.preventDefault();
-          rotatePiece();
-          break;
-        case ' ':
-          if (gameStatus !== 'playing') return;
-          event.preventDefault();
-          hardDrop();
-          break;
-        case 'p':
-        case 'P':
-          event.preventDefault();
-          pauseGame();
-          break;
-        case 'r':
-        case 'R':
-          event.preventDefault();
-          restartGame();
-          break;
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    return () => {
-      window.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [gameStatus, moveLeft, moveRight, moveDown, rotatePiece, hardDrop, pauseGame, restartGame]);
+  }, [gameStatus, lastDropTime, dropInterval, gameTick, updateLastDropTime, processInput, handleDASRepeat]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center p-4">

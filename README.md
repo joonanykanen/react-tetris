@@ -16,6 +16,7 @@ A fully-featured Tetris game built with React, TypeScript, Jotai for state manag
 - **Classic Tetris Gameplay**: Complete implementation of the classic Tetris game mechanics
 - **7 Tetromino Shapes**: All standard pieces (I, O, T, S, Z, J, L) with distinct colors
 - **Smooth Game Loop**: RequestAnimationFrame-based game loop for smooth animations
+- **DAS (Delayed Auto-Shift)**: Classic Tetris horizontal movement with configurable timing
 - **Scoring System**: Standard Tetris scoring with level progression
 - **Pause/Resume**: Pause the game at any time
 - **Modern UI**: Beautiful gradient styling with Tailwind CSS
@@ -57,6 +58,16 @@ pnpm dev
 | P | Pause/Resume game |
 | R | Restart game |
 
+### DAS (Delayed Auto-Shift)
+
+The game implements classic Tetris DAS for smooth horizontal movement:
+
+| Setting | Value | Description |
+|---------|-------|-------------|
+| DAS Delay | 150ms | Delay before auto-repeat starts |
+| ARR | 50ms | Auto-repeat interval |
+| Soft Drop | 50ms | Down key repeat interval |
+
 ### Game Rules
 
 - **Objective**: Clear as many lines as possible by completing horizontal rows
@@ -88,6 +99,10 @@ react-tetris/
 │   │   ├── ScoreDisplay.tsx    # Score, level, lines display
 │   │   ├── Controls.tsx    # Game control buttons
 │   │   └── SoundToggle.tsx # Sound on/off toggle
+│   ├── config/             # Game configuration
+│   │   └── inputConfig.ts  # DAS timing configuration
+│   ├── hooks/              # React hooks
+│   │   └── useKeyboardInput.ts  # Keyboard input with DAS
 │   ├── utils/              # Game logic utilities
 │   │   ├── tetrominos.ts   # Tetromino shapes and colors
 │   │   ├── collision.ts    # Collision detection
