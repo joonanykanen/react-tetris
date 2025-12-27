@@ -15,6 +15,7 @@ import { scoreAtom, levelAtom, linesAtom, addScoreAtom, addLinesAtom } from './s
 import { lastDropTimeAtom, updateLastDropTimeAtom } from './gameLoopAtom';
 import { soundEnabledAtom } from './soundAtom';
 import { playSound } from '../utils/sound';
+import { updateHighScoreAtom, openLeaderboardAtom } from './leaderboardAtom';
 
 // Spawn a new piece
 export const spawnPieceAtom = atom(null, (get, set) => {
@@ -165,6 +166,10 @@ function lockPieceAtom(get: Getter, set: Setter) {
   if (!nextPieceType) {
     if (soundEnabled) playSound('gameOver');
     set(setGameStatusAtom, 'gameover');
+    const finalScore = get(scoreAtom);
+    set(updateHighScoreAtom, finalScore);
+    // Open leaderboard modal on game over
+    set(openLeaderboardAtom);
     return;
   }
   
@@ -175,6 +180,10 @@ function lockPieceAtom(get: Getter, set: Setter) {
     // Game over - can't spawn new piece
     if (soundEnabled) playSound('gameOver');
     set(setGameStatusAtom, 'gameover');
+    const finalScore = get(scoreAtom);
+    set(updateHighScoreAtom, finalScore);
+    // Open leaderboard modal on game over
+    set(openLeaderboardAtom);
     return;
   }
   
