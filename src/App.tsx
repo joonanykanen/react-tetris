@@ -13,6 +13,7 @@ import ScoreDisplay from './components/ScoreDisplay';
 import Controls from './components/Controls';
 import Leaderboard from './components/Leaderboard';
 import PauseMenu from './components/PauseMenu';
+import SettingsModal from './components/SettingsModal';
 
 export default function App() {
   const gameStatus = useAtomValue(gameStatusAtom);
@@ -165,6 +166,9 @@ export default function App() {
       
       {/* Pause menu modal */}
       <PauseMenu />
+      
+      {/* Settings modal */}
+      <SettingsModal />
     </div>
   );
 }
