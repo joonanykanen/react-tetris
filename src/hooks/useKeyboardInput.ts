@@ -1,6 +1,8 @@
 import { useEffect, useRef, useCallback } from 'react';
+import { useAtomValue } from 'jotai';
 import { DEFAULT_DAS_CONFIG, DAS_KEYS, SPECIAL_KEYS } from '../config/inputConfig';
 import type { DASConfig, DASKey } from '../config/inputConfig';
+import { dasDelayAtom, arrAtom, softDropIntervalAtom } from '../atoms/settingsAtom';
 
 interface KeyState {
   pressed: boolean;
@@ -20,17 +22,30 @@ interface UseKeyboardInputOptions {
 export function useKeyboardInput(options: UseKeyboardInputOptions = {}) {
   const { dasConfig = {}, onDASRepeat, onOneShot } = options;
 
+  // Get settings from atoms
+  const dasDelay = useAtomValue(dasDelayAtom);
+  const arr = useAtomValue(arrAtom);
+  const softDropInterval = useAtomValue(softDropIntervalAtom);
+
   const keyStates = useRef<Map<string, KeyState>>(new Map());
   const configRef = useRef<Record<string, DASConfig>>({ ...DEFAULT_DAS_CONFIG });
 
-  // Update config when custom config is provided
+  // Update config when custom config is provided or settings change
   useEffect(() => {
     for (const key of DAS_KEYS) {
       if (dasConfig[key]) {
         configRef.current[key] = dasConfig[key]!;
+      } else {
+        // Use settings from atoms with fallbacks to defaults
+        const delay = key === 'ArrowDown' ? 0 : dasDelay;
+        const interval = key === 'ArrowDown' ? softDropInterval : arr;
+        configRef.current[key] = {
+          delay,
+          interval,
+        };
       }
     }
-  }, [dasConfig]);
+  }, [dasConfig, dasDelay, arr, softDropInterval]);
 
   const getConfig = useCallback((key: string): DASConfig => {
     return configRef.current[key] || DEFAULT_DAS_CONFIG[key as DASKey] || { delay: 150, interval: 50 };
