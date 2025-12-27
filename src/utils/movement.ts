@@ -48,13 +48,44 @@ export function moveDown(
   return null;
 }
 
-// Rotate piece with wall kick support
+// Rotate piece with wall kick support (clockwise)
 export function rotatePiece(
   shape: number[][],
   position: { x: number; y: number },
   board: (string | null)[][]
 ): { shape: number[][]; position: { x: number; y: number } } | null {
   const rotatedShape = rotateShape(shape);
+  
+  // Try rotation at current position
+  if (!checkCollision(rotatedShape, position, board)) {
+    return { shape: rotatedShape, position };
+  }
+  
+  // Try wall kicks (move left/right to fit)
+  const kickOffsets = [-1, 1, -2, 2];
+  
+  for (const offset of kickOffsets) {
+    const kickPosition = { x: position.x + offset, y: position.y };
+    if (!checkCollision(rotatedShape, kickPosition, board)) {
+      return { shape: rotatedShape, position: kickPosition };
+    }
+  }
+  
+  return null;
+}
+
+// Rotate piece counter-clockwise with wall kick support
+export function rotatePieceCounterClockwise(
+  shape: number[][],
+  position: { x: number; y: number },
+  board: (string | null)[][]
+): { shape: number[][]; position: { x: number; y: number } } | null {
+  // Counter-clockwise = rotate 3 times (or rotate once then transpose)
+  // Equivalent to rotating clockwise 3 times
+  let rotatedShape = shape;
+  for (let i = 0; i < 3; i++) {
+    rotatedShape = rotateShape(rotatedShape);
+  }
   
   // Try rotation at current position
   if (!checkCollision(rotatedShape, position, board)) {
