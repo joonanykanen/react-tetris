@@ -4,6 +4,7 @@ import { useAtomValue, useSetAtom } from 'jotai';
 import { gameStatusAtom } from '../atoms/gameStatusAtom';
 import { startGameAtom, pauseGameAtom, restartGameAtom } from '../atoms/gameActionsAtom';
 import SoundToggle from './SoundToggle';
+import SettingsButton from './SettingsButton';
 
 export default function Controls() {
   const gameStatus = useAtomValue(gameStatusAtom);
@@ -54,9 +55,10 @@ export default function Controls() {
         </Button>
       )}
       
-      {/* Sound toggle */}
-      <div className="flex justify-center mt-2">
+      {/* Sound toggle and settings */}
+      <div className="flex justify-center mt-2 gap-2">
         <SoundToggle />
+        <SettingsButton />
       </div>
     </div>
   );
