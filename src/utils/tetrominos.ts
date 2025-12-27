@@ -27,9 +27,9 @@ export const TETROMINOS: Record<TetrominoType, TetrominoShape> = {
   },
   T: {
     shape: [
-      [0, 1, 0],
-      [1, 1, 1],
       [0, 0, 0],
+      [1, 1, 1],
+      [0, 1, 0],
     ],
     color: 'bg-yellow-400',
   },
@@ -51,17 +51,17 @@ export const TETROMINOS: Record<TetrominoType, TetrominoShape> = {
   },
   J: {
     shape: [
-      [1, 0, 0],
-      [1, 1, 1],
       [0, 0, 0],
+      [1, 1, 1],
+      [0, 0, 1],
     ],
     color: 'bg-pink-500',
   },
   L: {
     shape: [
-      [0, 0, 1],
-      [1, 1, 1],
       [0, 0, 0],
+      [1, 1, 1],
+      [1, 0, 0],
     ],
     color: 'bg-blue-500',
   },
