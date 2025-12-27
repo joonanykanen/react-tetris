@@ -5,7 +5,7 @@ import type { Piece } from './currentPieceAtom';
 import type { TetrominoType } from '../utils/tetrominos';
 import { TETROMINOS, getRandomTetromino } from '../utils/tetrominos';
 import { checkSpawnCollision, getLandingPosition } from '../utils/collision';
-import { moveLeft, moveRight, moveDown, rotatePiece, lockPiece, getSpawnPosition } from '../utils/movement';
+import { moveLeft, moveRight, moveDown, rotatePiece, rotatePieceCounterClockwise, lockPiece, getSpawnPosition } from '../utils/movement';
 import { clearLines, getCompletedRows } from '../utils/lineClearing';
 import { boardAtom } from './boardAtom';
 import { currentPieceAtom } from './currentPieceAtom';
@@ -94,7 +94,7 @@ export const moveDownAtom = atom(null, (get, set) => {
   }
 });
 
-// Rotate piece
+// Rotate piece (clockwise)
 export const rotatePieceAtom = atom(null, (get, set) => {
   const currentPiece = get(currentPieceAtom);
   const board = get(boardAtom);
@@ -103,6 +103,26 @@ export const rotatePieceAtom = atom(null, (get, set) => {
   if (!currentPiece) return;
   
   const result = rotatePiece(currentPiece.shape, currentPiece.position, board);
+  
+  if (result) {
+    set(currentPieceAtom, {
+      ...currentPiece,
+      shape: result.shape,
+      position: result.position,
+    });
+    if (soundEnabled) playSound('rotate');
+  }
+});
+
+// Rotate piece counter-clockwise
+export const rotateCounterClockwiseAtom = atom(null, (get, set) => {
+  const currentPiece = get(currentPieceAtom);
+  const board = get(boardAtom);
+  const soundEnabled = get(soundEnabledAtom);
+  
+  if (!currentPiece) return;
+  
+  const result = rotatePieceCounterClockwise(currentPiece.shape, currentPiece.position, board);
   
   if (result) {
     set(currentPieceAtom, {
