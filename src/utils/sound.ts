@@ -17,12 +17,25 @@ export type SoundType =
 // Audio context singleton (created on first user interaction)
 let audioContext: AudioContext | null = null;
 
+// Volume from settings (default 100%)
+let currentVolume = 100;
+
 // Get or create audio context
 function getAudioContext(): AudioContext {
   if (!audioContext) {
     audioContext = new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
   }
   return audioContext;
+}
+
+// Get current volume as a multiplier (0-1)
+function getVolumeMultiplier(): number {
+  return currentVolume / 100;
+}
+
+// Update volume from settings - called by SettingsModal when slider changes
+export function updateVolume(volume: number): void {
+  currentVolume = Math.max(0, Math.min(100, volume));
 }
 
 // Sound configurations
@@ -48,6 +61,9 @@ function playTone(frequency: number, duration: number, type: OscillatorType = 's
     ctx.resume();
   }
 
+  const volumeMultiplier = getVolumeMultiplier();
+  const baseGain = 0.1 * volumeMultiplier;
+
   const oscillator = ctx.createOscillator();
   const gainNode = ctx.createGain();
 
@@ -59,9 +75,9 @@ function playTone(frequency: number, duration: number, type: OscillatorType = 's
     oscillator.frequency.linearRampToValueAtTime(frequency + slide, ctx.currentTime + duration / 1000);
   }
 
-  // Envelope for smooth sound
-  gainNode.gain.setValueAtTime(0.1, ctx.currentTime);
-  gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + duration / 1000);
+  // Envelope for smooth sound with volume
+  gainNode.gain.setValueAtTime(baseGain, ctx.currentTime);
+  gainNode.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration / 1000);
 
   oscillator.connect(gainNode);
   gainNode.connect(ctx.destination);
@@ -78,6 +94,9 @@ function playLineClear(): void {
     ctx.resume();
   }
 
+  const volumeMultiplier = getVolumeMultiplier();
+  const baseGain = 0.1 * volumeMultiplier;
+
   // Play a chord for line clear
   const frequencies = [523, 659, 784]; // C5, E5, G5
   
@@ -92,8 +111,8 @@ function playLineClear(): void {
     const startTime = ctx.currentTime + index * 0.05;
     
     gainNode.gain.setValueAtTime(0, startTime);
-    gainNode.gain.linearRampToValueAtTime(0.1, startTime + 0.02);
-    gainNode.gain.exponentialRampToValueAtTime(0.01, startTime + 0.3);
+    gainNode.gain.linearRampToValueAtTime(baseGain, startTime + 0.02);
+    gainNode.gain.exponentialRampToValueAtTime(0.001, startTime + 0.3);
 
     oscillator.connect(gainNode);
     gainNode.connect(ctx.destination);
@@ -111,6 +130,9 @@ function playLevelUp(): void {
     ctx.resume();
   }
 
+  const volumeMultiplier = getVolumeMultiplier();
+  const baseGain = 0.15 * volumeMultiplier;
+
   const notes = [523, 659, 784, 1047]; // C5, E5, G5, C6
   
   notes.forEach((freq, index) => {
@@ -123,8 +145,8 @@ function playLevelUp(): void {
     const startTime = ctx.currentTime + index * 0.1;
     
     gainNode.gain.setValueAtTime(0, startTime);
-    gainNode.gain.linearRampToValueAtTime(0.15, startTime + 0.05);
-    gainNode.gain.exponentialRampToValueAtTime(0.01, startTime + 0.4);
+    gainNode.gain.linearRampToValueAtTime(baseGain, startTime + 0.05);
+    gainNode.gain.exponentialRampToValueAtTime(0.001, startTime + 0.4);
 
     oscillator.connect(gainNode);
     gainNode.connect(ctx.destination);
@@ -142,6 +164,9 @@ function playGameOver(): void {
     ctx.resume();
   }
 
+  const volumeMultiplier = getVolumeMultiplier();
+  const baseGain = 0.15 * volumeMultiplier;
+
   const oscillator = ctx.createOscillator();
   const gainNode = ctx.createGain();
 
@@ -149,8 +174,8 @@ function playGameOver(): void {
   oscillator.frequency.setValueAtTime(400, ctx.currentTime);
   oscillator.frequency.exponentialRampToValueAtTime(100, ctx.currentTime + 0.8);
 
-  gainNode.gain.setValueAtTime(0.15, ctx.currentTime);
-  gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.8);
+  gainNode.gain.setValueAtTime(baseGain, ctx.currentTime);
+  gainNode.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.8);
 
   oscillator.connect(gainNode);
   gainNode.connect(ctx.destination);
@@ -167,6 +192,9 @@ function playStart(): void {
     ctx.resume();
   }
 
+  const volumeMultiplier = getVolumeMultiplier();
+  const baseGain = 0.1 * volumeMultiplier;
+
   const oscillator = ctx.createOscillator();
   const gainNode = ctx.createGain();
 
@@ -174,8 +202,8 @@ function playStart(): void {
   oscillator.frequency.setValueAtTime(440, ctx.currentTime);
   oscillator.frequency.linearRampToValueAtTime(880, ctx.currentTime + 0.2);
 
-  gainNode.gain.setValueAtTime(0.1, ctx.currentTime);
-  gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3);
+  gainNode.gain.setValueAtTime(baseGain, ctx.currentTime);
+  gainNode.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.3);
 
   oscillator.connect(gainNode);
   gainNode.connect(ctx.destination);
