@@ -16,14 +16,14 @@ export const TETROMINOS: Record<TetrominoType, TetrominoShape> = {
       [0, 0, 0, 0],
       [0, 0, 0, 0],
     ],
-    color: 'bg-cyan-400',
+    color: 'bg-orange-500',
   },
   O: {
     shape: [
       [1, 1],
       [1, 1],
     ],
-    color: 'bg-yellow-400',
+    color: 'bg-red-500',
   },
   T: {
     shape: [
@@ -31,7 +31,7 @@ export const TETROMINOS: Record<TetrominoType, TetrominoShape> = {
       [1, 1, 1],
       [0, 0, 0],
     ],
-    color: 'bg-purple-500',
+    color: 'bg-yellow-400',
   },
   S: {
     shape: [
@@ -39,7 +39,7 @@ export const TETROMINOS: Record<TetrominoType, TetrominoShape> = {
       [1, 1, 0],
       [0, 0, 0],
     ],
-    color: 'bg-green-500',
+    color: 'bg-cyan-400',
   },
   Z: {
     shape: [
@@ -47,7 +47,7 @@ export const TETROMINOS: Record<TetrominoType, TetrominoShape> = {
       [0, 1, 1],
       [0, 0, 0],
     ],
-    color: 'bg-red-500',
+    color: 'bg-green-500',
   },
   J: {
     shape: [
@@ -55,7 +55,7 @@ export const TETROMINOS: Record<TetrominoType, TetrominoShape> = {
       [1, 1, 1],
       [0, 0, 0],
     ],
-    color: 'bg-blue-500',
+    color: 'bg-pink-500',
   },
   L: {
     shape: [
@@ -63,7 +63,7 @@ export const TETROMINOS: Record<TetrominoType, TetrominoShape> = {
       [1, 1, 1],
       [0, 0, 0],
     ],
-    color: 'bg-orange-500',
+    color: 'bg-blue-500',
   },
 };
 

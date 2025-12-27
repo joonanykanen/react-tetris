@@ -27,11 +27,11 @@ export const DAS_KEYS = ['ArrowLeft', 'ArrowRight', 'ArrowDown'] as const;
 export type DASKey = typeof DAS_KEYS[number];
 
 // One-shot keys that don't use DAS (trigger once per press)
-export const ONESHOT_KEYS = ['ArrowUp', ' '] as const;
+export const ONESHOT_KEYS = ['ArrowUp', ' ', 'z', 'Z'] as const;
 export type OneShotKey = typeof ONESHOT_KEYS[number];
 
-// Special game keys (pause, restart) - one-shot, no DAS
-export const SPECIAL_KEYS = ['p', 'P', 'r', 'R'] as const;
+// Special game keys (pause) - one-shot, no DAS
+export const SPECIAL_KEYS = ['p', 'P', 'Escape'] as const;
 export type SpecialKey = typeof SPECIAL_KEYS[number];
 
 // All controllable keys

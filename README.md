@@ -55,9 +55,9 @@ pnpm dev
 | ← → | Move piece left/right |
 | ↓ | Soft drop (accelerated fall) |
 | ↑ | Rotate piece clockwise |
-| Space | Hard drop (instant to bottom) |
-| P | Pause/Resume game |
-| R | Restart game |
+| Z | Rotate piece counter-clockwise |
+| Space | Hard drop (instant to bottom) / Start game |
+| ESC / P | Pause/Resume game |
 
 ### DAS (Delayed Auto-Shift)
 
@@ -101,7 +101,8 @@ react-tetris/
 │   │   ├── ScoreDisplay.tsx    # Score, level, lines display
 │   │   ├── Controls.tsx    # Game control buttons
 │   │   ├── SoundToggle.tsx # Sound on/off toggle
-│   │   └── Leaderboard.tsx # Leaderboard modal
+│   │   ├── Leaderboard.tsx # Leaderboard modal
+│   │   └── PauseMenu.tsx   # Pause menu modal
 │   ├── types/              # TypeScript types
 │   │   └── leaderboard.ts  # Leaderboard type definitions
 │   ├── config/             # Game configuration
@@ -198,13 +199,13 @@ Standard 7 tetromino shapes with colors:
 
 | Piece | Color | Shape |
 |-------|-------|-------|
-| I | Cyan | 4×1 line |
-| O | Yellow | 2×2 square |
-| T | Purple | T-shape |
-| S | Green | S-shape |
-| Z | Red | Z-shape |
-| J | Blue | J-shape |
-| L | Orange | L-shape |
+| I | Orange | 4×1 line |
+| O | Red | 2×2 square |
+| T | Yellow | T-shape |
+| S | Cyan | S-shape |
+| Z | Green | Z-shape |
+| J | Pink | J-shape |
+| L | Blue | L-shape |
 
 ## 🚀 Build & Deploy
 
