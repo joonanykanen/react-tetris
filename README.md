@@ -20,6 +20,7 @@ A fully-featured Tetris game built with React, TypeScript, Jotai for state manag
 - **Scoring System**: Standard Tetris scoring with level progression
 - **Local Leaderboard**: Persistent top 10 scores with player names, auto-saves on game over
 - **Pause/Resume**: Pause the game at any time
+- **Settings Modal**: Customize DAS delay, ARR, soft drop interval, and volume
 - **Modern UI**: Beautiful gradient styling with Tailwind CSS
 - **Keyboard Controls**: Full keyboard support for all game actions
 - **Sound Effects**: Synthesized sound effects using Web Audio API (no external dependencies)
@@ -61,13 +62,14 @@ pnpm dev
 
 ### DAS (Delayed Auto-Shift)
 
-The game implements classic Tetris DAS for smooth horizontal movement:
+The game implements classic Tetris DAS for smooth horizontal movement. All timing settings can be customized in the Settings modal:
 
-| Setting | Value | Description |
-|---------|-------|-------------|
-| DAS Delay | 150ms | Delay before auto-repeat starts |
-| ARR | 50ms | Auto-repeat interval |
-| Soft Drop | 50ms | Down key repeat interval |
+| Setting | Default | Range | Description |
+|---------|---------|-------|-------------|
+| DAS Delay | 150ms | 0-500ms | Delay before auto-repeat starts |
+| ARR | 50ms | 0-200ms | Auto-repeat interval |
+| Soft Drop Interval | 50ms | 0-200ms | Down key repeat interval |
+| Volume | 100% | 0-100% | Sound effects volume |
 
 ### Game Rules
 
@@ -101,6 +103,8 @@ react-tetris/
 │   │   ├── ScoreDisplay.tsx    # Score, level, lines display
 │   │   ├── Controls.tsx    # Game control buttons
 │   │   ├── SoundToggle.tsx # Sound on/off toggle
+│   │   ├── SettingsButton.tsx  # Settings modal toggle
+│   │   ├── SettingsModal.tsx   # Settings modal with sliders
 │   │   ├── Leaderboard.tsx # Leaderboard modal
 │   │   └── PauseMenu.tsx   # Pause menu modal
 │   ├── types/              # TypeScript types
@@ -134,11 +138,12 @@ The game uses Jotai's atomic state management for efficient and predictable stat
 - **boardAtom**: 10×20 grid representing the game board
 - **currentPieceAtom**: Currently falling piece (shape, position, rotation)
 - **nextPieceAtom**: Next piece to spawn
-- **gameStatusAtom**: Game state ('idle' | 'playing' | 'paused' | 'gameover')
+- **gameStatusAtom**: Game state ('idle' | 'playing' | 'paused' | 'gameover') and settings modal state
 - **scoreAtom**: Current score, level, and lines cleared
 - **gameLoopAtom**: Timing for automatic piece drops
 - **soundAtom**: Sound enabled/disabled state
 - **leaderboardAtom**: Persistent leaderboard with top 10 scores
+- **settingsAtom**: Persistent settings (DAS delay, ARR, soft drop interval, volume) using atomWithStorage
 
 ### Leaderboard System
 
