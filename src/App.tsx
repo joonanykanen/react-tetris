@@ -4,7 +4,7 @@ import { useEffect, useRef, useCallback } from 'react';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { gameStatusAtom } from './atoms/gameStatusAtom';
 import { lastDropTimeAtom, dropIntervalAtom, updateLastDropTimeAtom } from './atoms/gameLoopAtom';
-import { moveLeftAtom, moveRightAtom, moveDownAtom, rotatePieceAtom, hardDropAtom, gameTickAtom, pauseGameAtom, restartGameAtom } from './atoms/gameActionsAtom';
+import { moveLeftAtom, moveRightAtom, moveDownAtom, rotatePieceAtom, rotateCounterClockwiseAtom, hardDropAtom, gameTickAtom, pauseGameAtom, startGameAtom } from './atoms/gameActionsAtom';
 import { useKeyboardInput } from './hooks/useKeyboardInput';
 import { type DASKey } from './config/inputConfig';
 import GameBoard from './components/GameBoard';
@@ -12,6 +12,7 @@ import NextPiece from './components/NextPiece';
 import ScoreDisplay from './components/ScoreDisplay';
 import Controls from './components/Controls';
 import Leaderboard from './components/Leaderboard';
+import PauseMenu from './components/PauseMenu';
 
 export default function App() {
   const gameStatus = useAtomValue(gameStatusAtom);
@@ -23,10 +24,11 @@ export default function App() {
   const moveRight = useSetAtom(moveRightAtom);
   const moveDown = useSetAtom(moveDownAtom);
   const rotatePiece = useSetAtom(rotatePieceAtom);
+  const rotateCounterClockwise = useSetAtom(rotateCounterClockwiseAtom);
   const hardDrop = useSetAtom(hardDropAtom);
   const gameTick = useSetAtom(gameTickAtom);
   const pauseGame = useSetAtom(pauseGameAtom);
-  const restartGame = useSetAtom(restartGameAtom);
+  const startGame = useSetAtom(startGameAtom);
   
   const animationFrameRef = useRef<number | undefined>(undefined);
   const lastTimeRef = useRef<number>(0);
@@ -50,7 +52,20 @@ export default function App() {
 
   // Handle one-shot keys (rotate, hard drop, pause, restart)
   const handleOneShot = useCallback((key: string) => {
-    if (gameStatus !== 'playing' && key !== 'p' && key !== 'P' && key !== 'r' && key !== 'R') return;
+    // Handle start game with Space when idle
+    if (gameStatus === 'idle' && (key === ' ')) {
+      startGame();
+      return;
+    }
+    
+    // Handle pause/unpause with ESC or P
+    if ((key === 'Escape' || key === 'p' || key === 'P') && (gameStatus === 'playing' || gameStatus === 'paused')) {
+      pauseGame();
+      return;
+    }
+    
+    // Only handle other keys when playing
+    if (gameStatus !== 'playing') return;
     
     switch (key) {
       case 'ArrowUp':
@@ -59,16 +74,12 @@ export default function App() {
       case ' ':
         hardDrop();
         break;
-      case 'p':
-      case 'P':
-        pauseGame();
-        break;
-      case 'r':
-      case 'R':
-        restartGame();
+      case 'z':
+      case 'Z':
+        rotateCounterClockwise();
         break;
     }
-  }, [gameStatus, rotatePiece, hardDrop, pauseGame, restartGame]);
+  }, [gameStatus, rotatePiece, rotateCounterClockwise, hardDrop, pauseGame, startGame]);
 
   // Setup keyboard input with DAS
   const { processInput } = useKeyboardInput({
@@ -126,19 +137,14 @@ export default function App() {
           </h1>
           <GameBoard />
           
-          {/* Mobile controls hint */}
-          <div className="text-xs text-gray-500 mt-2">
-            Use arrow keys to move, Space to hard drop
-          </div>
+          {/* Leaderboard button */}
+          <Leaderboard />
         </div>
 
         {/* Right side: Info panel */}
         <div className="flex flex-col gap-6">
           <NextPiece />
           <ScoreDisplay />
-          
-          {/* Leaderboard button */}
-          <Leaderboard />
           
           <Controls />
           
@@ -148,14 +154,17 @@ export default function App() {
             <div className="text-xs text-gray-300 space-y-1">
               <div>← → : Move left/right</div>
               <div>↓ : Soft drop</div>
-              <div>↑ : Rotate</div>
-              <div>Space : Hard drop</div>
-              <div>P : Pause</div>
-              <div>R : Restart</div>
+              <div>↑ : Rotate clockwise</div>
+              <div>Z : Rotate counter-clockwise</div>
+              <div>Space : Hard drop / Start game</div>
+              <div>ESC / P : Pause</div>
             </div>
           </div>
         </div>
       </div>
+      
+      {/* Pause menu modal */}
+      <PauseMenu />
     </div>
   );
 }
