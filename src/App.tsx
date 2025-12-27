@@ -11,6 +11,7 @@ import GameBoard from './components/GameBoard';
 import NextPiece from './components/NextPiece';
 import ScoreDisplay from './components/ScoreDisplay';
 import Controls from './components/Controls';
+import Leaderboard from './components/Leaderboard';
 
 export default function App() {
   const gameStatus = useAtomValue(gameStatusAtom);
@@ -135,6 +136,10 @@ export default function App() {
         <div className="flex flex-col gap-6">
           <NextPiece />
           <ScoreDisplay />
+          
+          {/* Leaderboard button */}
+          <Leaderboard />
+          
           <Controls />
           
           {/* Controls info */}

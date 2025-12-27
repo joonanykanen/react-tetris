@@ -18,6 +18,7 @@ A fully-featured Tetris game built with React, TypeScript, Jotai for state manag
 - **Smooth Game Loop**: RequestAnimationFrame-based game loop for smooth animations
 - **DAS (Delayed Auto-Shift)**: Classic Tetris horizontal movement with configurable timing
 - **Scoring System**: Standard Tetris scoring with level progression
+- **Local Leaderboard**: Persistent top 10 scores with player names, auto-saves on game over
 - **Pause/Resume**: Pause the game at any time
 - **Modern UI**: Beautiful gradient styling with Tailwind CSS
 - **Keyboard Controls**: Full keyboard support for all game actions
@@ -92,13 +93,17 @@ react-tetris/
 │   │   ├── scoreAtom.ts         # Score, level, lines
 │   │   ├── gameLoopAtom.ts      # Game loop timing
 │   │   ├── gameActionsAtom.ts   # Game action handlers
-│   │   └── soundAtom.ts         # Sound settings
+│   │   ├── soundAtom.ts         # Sound settings
+│   │   └── leaderboardAtom.ts   # Leaderboard state with localStorage
 │   ├── components/         # React components
 │   │   ├── GameBoard.tsx   # Main game board display
 │   │   ├── NextPiece.tsx   # Next piece preview
 │   │   ├── ScoreDisplay.tsx    # Score, level, lines display
 │   │   ├── Controls.tsx    # Game control buttons
-│   │   └── SoundToggle.tsx # Sound on/off toggle
+│   │   ├── SoundToggle.tsx # Sound on/off toggle
+│   │   └── Leaderboard.tsx # Leaderboard modal
+│   ├── types/              # TypeScript types
+│   │   └── leaderboard.ts  # Leaderboard type definitions
 │   ├── config/             # Game configuration
 │   │   └── inputConfig.ts  # DAS timing configuration
 │   ├── hooks/              # React hooks
@@ -132,6 +137,29 @@ The game uses Jotai's atomic state management for efficient and predictable stat
 - **scoreAtom**: Current score, level, and lines cleared
 - **gameLoopAtom**: Timing for automatic piece drops
 - **soundAtom**: Sound enabled/disabled state
+- **leaderboardAtom**: Persistent leaderboard with top 10 scores
+
+### Leaderboard System
+
+The game features a local leaderboard that persists across sessions using localStorage:
+
+| Feature | Description |
+|---------|-------------|
+| Top 10 Scores | Automatically keeps the highest 10 scores |
+| Player Names | Saves scores with player names (pre-filled from previous games) |
+| High Score Detection | Shows "NEW HIGH SCORE!" indicator when beating previous best |
+| Auto-Open | Modal automatically opens on game over |
+| Manual Toggle | Click the "🏆 Leaderboard" button to view anytime |
+| Clear Option | Clear all scores with confirmation |
+
+The leaderboard uses jotai's `atomWithStorage` for seamless localStorage persistence:
+
+```typescript
+export const leaderboardAtom = atomWithStorage<LeaderboardEntry[]>(
+  'tetris-leaderboard',
+  []
+);
+```
 
 ### Sound System
 
@@ -202,7 +230,7 @@ This project was fully vibe coded **locally** using:
 
 - **Hardware**: 2 × RTX 3090 GPUs
 - **RAM**: 128GB
-- **Model**: [GLM-4.7](https://huggingface.co/zai-org/GLM-4.7) (Q2_K_XL quantization)
+- **Model**: [GLM-4.7](https://huggingface.co/zai-org/GLM-4.7) (Q2_K_XL quantization) for core functionality & [MiniMax-M2.1](https://huggingface.co/MiniMaxAI/MiniMax-M2.1) (Q4_K_XL) for further PRs
 
 The entire codebase, architecture, and implementation were generated using the [Kilo Code](https://kilocode.ai) agent after Vite project [initialization](https://vite.dev/guide/).
 
