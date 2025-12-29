@@ -9,7 +9,7 @@ A fully-featured Tetris game built with React, TypeScript, Jotai for state manag
 
 ---
 
-![React Tetris Game](screenshots/Screenshot%202025-12-23%20at%2020.34.59.png)
+![React Tetris Game](screenshots/Screenshot%202025-12-29%20at%202.37.51.png)
 
 ## 🎮 Features
 
@@ -57,7 +57,7 @@ pnpm dev
 | ↓ | Soft drop (accelerated fall) |
 | ↑ | Rotate piece clockwise |
 | Z | Rotate piece counter-clockwise |
-| Space | Hard drop (instant to bottom) / Start game |
+| Space | Hard drop (instant to bottom) / Start or Restart game |
 | ESC / P | Pause/Resume game |
 
 ### DAS (Delayed Auto-Shift)
@@ -155,7 +155,7 @@ The game features a local leaderboard that persists across sessions using localS
 | Player Names | Saves scores with player names (pre-filled from previous games) |
 | High Score Detection | Shows "NEW HIGH SCORE!" indicator when beating previous best |
 | Auto-Open | Modal automatically opens on game over |
-| Manual Toggle | Click the "🏆 Leaderboard" button to view anytime |
+| Manual Toggle | Click the "🏆" button to view anytime |
 | Clear Option | Clear all scores with confirmation |
 
 The leaderboard uses jotai's `atomWithStorage` for seamless localStorage persistence:

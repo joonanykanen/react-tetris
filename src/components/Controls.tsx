@@ -5,6 +5,7 @@ import { gameStatusAtom } from '../atoms/gameStatusAtom';
 import { startGameAtom, pauseGameAtom, restartGameAtom } from '../atoms/gameActionsAtom';
 import SoundToggle from './SoundToggle';
 import SettingsButton from './SettingsButton';
+import Leaderboard from './Leaderboard';
 
 export default function Controls() {
   const gameStatus = useAtomValue(gameStatusAtom);
@@ -55,10 +56,11 @@ export default function Controls() {
         </Button>
       )}
       
-      {/* Sound toggle and settings */}
+      {/* Sound toggle, settings, and leaderboard */}
       <div className="flex justify-center mt-2 gap-2">
         <SoundToggle />
         <SettingsButton />
+        <Leaderboard />
       </div>
     </div>
   );
