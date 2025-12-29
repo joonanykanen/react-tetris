@@ -11,7 +11,6 @@ import GameBoard from './components/GameBoard';
 import NextPiece from './components/NextPiece';
 import ScoreDisplay from './components/ScoreDisplay';
 import Controls from './components/Controls';
-import Leaderboard from './components/Leaderboard';
 import PauseMenu from './components/PauseMenu';
 import SettingsModal from './components/SettingsModal';
 
@@ -53,8 +52,8 @@ export default function App() {
 
   // Handle one-shot keys (rotate, hard drop, pause, restart)
   const handleOneShot = useCallback((key: string) => {
-    // Handle start game with Space when idle
-    if (gameStatus === 'idle' && (key === ' ')) {
+    // Handle start/restart game with Space when idle or gameover
+    if ((gameStatus === 'idle' || gameStatus === 'gameover') && (key === ' ')) {
       startGame();
       return;
     }
@@ -137,9 +136,6 @@ export default function App() {
             TETRIS
           </h1>
           <GameBoard />
-          
-          {/* Leaderboard button */}
-          <Leaderboard />
         </div>
 
         {/* Right side: Info panel */}
