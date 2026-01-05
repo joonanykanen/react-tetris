@@ -4,6 +4,7 @@ import { useEffect, useRef, useCallback } from 'react';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { gameStatusAtom } from './atoms/gameStatusAtom';
 import { lastDropTimeAtom, dropIntervalAtom, updateLastDropTimeAtom } from './atoms/gameLoopAtom';
+import { delayStateAtom, decrementDelayTimerAtom, incrementFrameCounterAtom } from './atoms/delayAtom';
 import { moveLeftAtom, moveRightAtom, moveDownAtom, rotatePieceAtom, rotateCounterClockwiseAtom, hardDropAtom, gameTickAtom, pauseGameAtom, startGameAtom } from './atoms/gameActionsAtom';
 import { useKeyboardInput } from './hooks/useKeyboardInput';
 import { type DASKey } from './config/inputConfig';
@@ -13,12 +14,14 @@ import ScoreDisplay from './components/ScoreDisplay';
 import Controls from './components/Controls';
 import PauseMenu from './components/PauseMenu';
 import SettingsModal from './components/SettingsModal';
+import LevelSelectionScreen from './components/LevelSelectionScreen';
 
 export default function App() {
   const gameStatus = useAtomValue(gameStatusAtom);
   const lastDropTime = useAtomValue(lastDropTimeAtom);
   const dropInterval = useAtomValue(dropIntervalAtom);
   const updateLastDropTime = useSetAtom(updateLastDropTimeAtom);
+  const delayState = useAtomValue(delayStateAtom);
   
   const moveLeft = useSetAtom(moveLeftAtom);
   const moveRight = useSetAtom(moveRightAtom);
@@ -29,6 +32,8 @@ export default function App() {
   const gameTick = useSetAtom(gameTickAtom);
   const pauseGame = useSetAtom(pauseGameAtom);
   const startGame = useSetAtom(startGameAtom);
+  const decrementDelayTimer = useSetAtom(decrementDelayTimerAtom);
+  const incrementFrameCounter = useSetAtom(incrementFrameCounterAtom);
   
   const animationFrameRef = useRef<number | undefined>(undefined);
   const lastTimeRef = useRef<number>(0);
@@ -101,16 +106,27 @@ export default function App() {
         lastTimeRef.current = timestamp;
       }
 
+      // Increment global frame counter
+      incrementFrameCounter();
+
       // Process DAS input for smooth movement
       const dasKeys = processInput(timestamp);
       for (const key of dasKeys) {
         handleDASRepeat(key);
       }
 
-      // Check if it's time to drop the piece
-      if (timestamp - lastDropTime >= dropInterval) {
-        gameTick();
-        updateLastDropTime(timestamp);
+      // Check if we're in a delay state
+      if (delayState !== 'normal') {
+        // Check if delay timer has elapsed (using frame-based timing)
+        if (timestamp - lastTimeRef.current >= 16.67) { // ~60 FPS
+          decrementDelayTimer();
+        }
+      } else {
+        // Normal gameplay - check if it's time to drop the piece
+        if (timestamp - lastDropTime >= dropInterval) {
+          gameTick();
+          updateLastDropTime(timestamp);
+        }
       }
 
       lastTimeRef.current = timestamp;
@@ -125,7 +141,7 @@ export default function App() {
       }
       lastTimeRef.current = 0;
     };
-  }, [gameStatus, lastDropTime, dropInterval, gameTick, updateLastDropTime, processInput, handleDASRepeat]);
+  }, [gameStatus, lastDropTime, dropInterval, delayState, gameTick, updateLastDropTime, processInput, handleDASRepeat, decrementDelayTimer, incrementFrameCounter]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center p-4">
@@ -165,6 +181,9 @@ export default function App() {
       
       {/* Settings modal */}
       <SettingsModal />
+      
+      {/* Level selection screen */}
+      <LevelSelectionScreen />
     </div>
   );
 }
