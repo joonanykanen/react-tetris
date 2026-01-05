@@ -34,14 +34,20 @@ export default function Leaderboard() {
   const closeModal = useSetAtom(closeLeaderboardAtom);
   const openModal = useSetAtom(openLeaderboardAtom);
 
-  // Check if current score is already saved in the leaderboard
-  const isCurrentScoreSaved = useMemo(() => {
-    return leaderboard.some(entry => entry.score === currentScore && entry.level === currentLevel);
-  }, [leaderboard, currentScore, currentLevel]);
+  // Check if current score qualifies for the leaderboard (would be in top 10)
+  const qualifiesForLeaderboard = useMemo(() => {
+    if (currentScore <= 0) return false;
+    // If leaderboard has fewer than 10 entries, any score qualifies
+    if (leaderboard.length < 10) return true;
+    // Otherwise, score must be higher than the lowest score on the leaderboard
+    const lowestScore = leaderboard[leaderboard.length - 1].score;
+    return currentScore > lowestScore;
+  }, [leaderboard, currentScore]);
 
-  // Only show save form when game is over, score > 0, and not already saved
-  const showSaveForm = isOpen && gameStatus === 'gameover' && currentScore > 0 && !isCurrentScoreSaved && !justSaved;
-  const showSavedMessage = isOpen && (isCurrentScoreSaved || justSaved);
+  // Only show save form when game is over, score > 0, qualifies for leaderboard, and not just saved
+  // Note: We allow saving duplicate scores
+  const showSaveForm = isOpen && gameStatus === 'gameover' && currentScore > 0 && !justSaved && qualifiesForLeaderboard;
+  const showSavedMessage = isOpen && justSaved;
 
   // Reset states when modal opens
   useEffect(() => {
@@ -50,20 +56,6 @@ export default function Leaderboard() {
       setShowClearConfirm(false);
     }
   }, [isOpen]);
-
-  // Handle ESC key to close modal
-  const handleKeyDown = useCallback((event: KeyboardEvent) => {
-    if (event.key === 'Escape') {
-      closeModal();
-    }
-  }, [closeModal]);
-
-  useEffect(() => {
-    if (isOpen) {
-      window.addEventListener('keydown', handleKeyDown);
-      return () => window.removeEventListener('keydown', handleKeyDown);
-    }
-  }, [isOpen, handleKeyDown]);
 
   const handleSaveScore = () => {
     const nameToSave = playerName.trim() || savedPlayerName;
@@ -78,6 +70,24 @@ export default function Leaderboard() {
 
     setJustSaved(true);
   };
+
+  // Handle keyboard shortcuts
+  const handleKeyDown = useCallback((event: KeyboardEvent) => {
+    if (event.key === 'Escape') {
+      closeModal();
+    }
+    // Press Enter to save score when save form is visible
+    if (event.key === 'Enter' && showSaveForm) {
+      handleSaveScore();
+    }
+  }, [closeModal, showSaveForm, handleSaveScore]);
+
+  useEffect(() => {
+    if (isOpen) {
+      window.addEventListener('keydown', handleKeyDown);
+      return () => window.removeEventListener('keydown', handleKeyDown);
+    }
+  }, [isOpen, handleKeyDown]);
 
   const handleClearConfirm = () => {
     clearLeaderboard();
