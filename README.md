@@ -14,6 +14,13 @@ A fully-featured Tetris game built with React, TypeScript, Jotai for state manag
 ## 🎮 Features
 
 - **Classic Tetris Gameplay**: Complete implementation of the classic Tetris game mechanics
+- **NES Tetris Mode**: Authentic NES-style gameplay with:
+  - **NES Randomizer**: Re-roll logic prevents consecutive same pieces (~25% re-roll chance)
+  - **NES Gravity**: Frames-per-gridcell table matching NES ROM ($898E)
+  - **NES Scoring**: Level-based multipliers (40/100/300/1200 × (level + 1))
+  - **NES Level Progression**: A-TYPE style advancement
+  - **Delay System**: ARE and line clear delays
+  - **Level Selection**: Start at any level 0-9
 - **7 Tetromino Shapes**: All standard pieces (I, O, T, S, Z, J, L) with distinct colors
 - **Smooth Game Loop**: RequestAnimationFrame-based game loop for smooth animations
 - **DAS (Delayed Auto-Shift)**: Classic Tetris horizontal movement with configurable timing
@@ -49,6 +56,15 @@ pnpm dev
 
 ## 🎯 Usage
 
+### Level Selection
+
+When the game starts, a level selection screen appears allowing you to choose your starting level (0-9):
+
+| Key | Action |
+|-----|--------|
+| ← → | Select starting level |
+| Space | Start game at selected level |
+
 ### Keyboard Controls
 
 | Key | Action |
@@ -74,12 +90,13 @@ The game implements classic Tetris DAS for smooth horizontal movement. All timin
 ### Game Rules
 
 - **Objective**: Clear as many lines as possible by completing horizontal rows
-- **Scoring**:
-  - 1 line: 100 × level
-  - 2 lines: 300 × level
-  - 3 lines: 500 × level
-  - 4 lines (Tetris): 800 × level
-- **Level Up**: Level increases every 10 lines cleared
+- **Scoring** (NES-style):
+  - 1 line: 40 × (level + 1)
+  - 2 lines: 100 × (level + 1)
+  - 3 lines: 300 × (level + 1)
+  - 4 lines (Tetris): 1200 × (level + 1)
+  - Soft drop: 1 point per grid space
+- **Level Up**: First advance at max(100, startLevel × 10 - 50) lines, then every 10 lines
 - **Game Over**: When a new piece cannot spawn at the top
 
 ## 🏗️ Project Structure
@@ -96,7 +113,9 @@ react-tetris/
 │   │   ├── gameLoopAtom.ts      # Game loop timing
 │   │   ├── gameActionsAtom.ts   # Game action handlers
 │   │   ├── soundAtom.ts         # Sound settings
-│   │   └── leaderboardAtom.ts   # Leaderboard state with localStorage
+│   │   ├── leaderboardAtom.ts   # Leaderboard state with localStorage
+│   │   ├── startLevelAtom.ts    # Starting level (0-9)
+│   │   └── delayAtom.ts         # Delay state management
 │   ├── components/         # React components
 │   │   ├── GameBoard.tsx   # Main game board display
 │   │   ├── NextPiece.tsx   # Next piece preview
@@ -106,7 +125,8 @@ react-tetris/
 │   │   ├── SettingsButton.tsx  # Settings modal toggle
 │   │   ├── SettingsModal.tsx   # Settings modal with sliders
 │   │   ├── Leaderboard.tsx # Leaderboard modal
-│   │   └── PauseMenu.tsx   # Pause menu modal
+│   │   ├── PauseMenu.tsx   # Pause menu modal
+│   │   └── LevelSelectionScreen.tsx  # Level selection (0-9)
 │   ├── types/              # TypeScript types
 │   │   └── leaderboard.ts  # Leaderboard type definitions
 │   ├── config/             # Game configuration
@@ -117,7 +137,7 @@ react-tetris/
 │   │   ├── tetrominos.ts   # Tetromino shapes and colors
 │   │   ├── collision.ts    # Collision detection
 │   │   ├── movement.ts     # Piece movement logic
-│   │   ├── lineClearing.ts # Line clearing logic
+│   │   ├── lineClearing.ts # Line clearing logic, NES gravity/scoring
 │   │   └── sound.ts        # Sound effects using Web Audio API
 │   ├── App.tsx             # Main application component
 │   ├── main.tsx            # Application entry point
@@ -144,6 +164,8 @@ The game uses Jotai's atomic state management for efficient and predictable stat
 - **soundAtom**: Sound enabled/disabled state
 - **leaderboardAtom**: Persistent leaderboard with top 10 scores
 - **settingsAtom**: Persistent settings (DAS delay, ARR, soft drop interval, volume) using atomWithStorage
+- **startLevelAtom**: Selected starting level (0-9)
+- **delayAtom**: Delay state management (ARE, line clear)
 
 ### Leaderboard System
 
