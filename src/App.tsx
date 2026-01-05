@@ -5,6 +5,7 @@ import { useAtomValue, useSetAtom } from 'jotai';
 import { gameStatusAtom } from './atoms/gameStatusAtom';
 import { lastDropTimeAtom, dropIntervalAtom, updateLastDropTimeAtom } from './atoms/gameLoopAtom';
 import { moveLeftAtom, moveRightAtom, moveDownAtom, rotatePieceAtom, rotateCounterClockwiseAtom, hardDropAtom, gameTickAtom, pauseGameAtom, startGameAtom } from './atoms/gameActionsAtom';
+import { isLeaderboardOpenAtom } from './atoms/leaderboardAtom';
 import { useKeyboardInput } from './hooks/useKeyboardInput';
 import { type DASKey } from './config/inputConfig';
 import GameBoard from './components/GameBoard';
@@ -16,6 +17,7 @@ import SettingsModal from './components/SettingsModal';
 
 export default function App() {
   const gameStatus = useAtomValue(gameStatusAtom);
+  const isLeaderboardOpen = useAtomValue(isLeaderboardOpenAtom);
   const lastDropTime = useAtomValue(lastDropTimeAtom);
   const dropInterval = useAtomValue(dropIntervalAtom);
   const updateLastDropTime = useSetAtom(updateLastDropTimeAtom);
@@ -53,7 +55,12 @@ export default function App() {
   // Handle one-shot keys (rotate, hard drop, pause, restart)
   const handleOneShot = useCallback((key: string) => {
     // Handle start/restart game with Space when idle or gameover
+    // But NOT when leaderboard is open with a saveable score (prevents accidental score loss)
     if ((gameStatus === 'idle' || gameStatus === 'gameover') && (key === ' ')) {
+      if (gameStatus === 'gameover' && isLeaderboardOpen) {
+        // Don't start new game if leaderboard is open - user needs to save or close it first
+        return;
+      }
       startGame();
       return;
     }
@@ -79,7 +86,7 @@ export default function App() {
         rotateCounterClockwise();
         break;
     }
-  }, [gameStatus, rotatePiece, rotateCounterClockwise, hardDrop, pauseGame, startGame]);
+  }, [gameStatus, isLeaderboardOpen, rotatePiece, rotateCounterClockwise, hardDrop, pauseGame, startGame]);
 
   // Setup keyboard input with DAS
   const { processInput } = useKeyboardInput({
