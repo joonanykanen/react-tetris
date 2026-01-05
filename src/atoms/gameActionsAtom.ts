@@ -3,10 +3,10 @@
 import { atom, type Getter, type Setter } from 'jotai';
 import type { Piece } from './currentPieceAtom';
 import type { TetrominoType } from '../utils/tetrominos';
-import { TETROMINOS, getRandomTetromino } from '../utils/tetrominos';
+import { TETROMINOS, getRandomTetromino, resetNESRandomizer } from '../utils/tetrominos';
 import { checkSpawnCollision, getLandingPosition } from '../utils/collision';
 import { moveLeft, moveRight, moveDown, rotatePiece, rotatePieceCounterClockwise, lockPiece, getSpawnPosition } from '../utils/movement';
-import { clearLines, getCompletedRows } from '../utils/lineClearing';
+import { clearLines, getCompletedRows, calculateScore } from '../utils/lineClearing';
 import { boardAtom } from './boardAtom';
 import { currentPieceAtom } from './currentPieceAtom';
 import { nextPieceAtom } from './nextPieceAtom';
@@ -16,6 +16,7 @@ import { lastDropTimeAtom, updateLastDropTimeAtom } from './gameLoopAtom';
 import { soundEnabledAtom } from './soundAtom';
 import { playSound } from '../utils/sound';
 import { updateHighScoreAtom, openLeaderboardAtom } from './leaderboardAtom';
+import { startLevelAtom } from './startLevelAtom';
 
 // Spawn a new piece
 export const spawnPieceAtom = atom(null, (get, set) => {
@@ -172,9 +173,9 @@ function lockPieceAtom(get: Getter, set: Setter) {
     const clearedBoard = clearLines(newBoard);
     set(boardAtom, clearedBoard);
     
-    // Update score and lines
-    const level = get(levelAtom);
-    const points = completedRows.length * 100 * level;
+    // Update score using NES scoring (level multiplier based on level AFTER clear)
+    const levelAfterClear = get(levelAtom);
+    const points = calculateScore(completedRows.length, levelAfterClear);
     set(addScoreAtom, points);
     set(addLinesAtom, completedRows.length);
     
@@ -223,15 +224,21 @@ function lockPieceAtom(get: Getter, set: Setter) {
 // Start game
 export const startGameAtom = atom(null, (get, set) => {
   const soundEnabled = get(soundEnabledAtom);
+  const startLevel = get(startLevelAtom);
+  
+  // Reset NES randomizer
+  resetNESRandomizer();
   
   // Reset all game state
   set(boardAtom, Array(20).fill(null).map(() => Array(10).fill(null)));
   set(currentPieceAtom, null);
   set(nextPieceAtom, getRandomTetromino());
   set(scoreAtom, 0);
-  set(levelAtom, 1);
   set(linesAtom, 0);
   set(lastDropTimeAtom, 0);
+  
+  // Set level to start level
+  set(levelAtom, startLevel);
   
   // Set game status to playing
   set(setGameStatusAtom, 'playing');
@@ -278,15 +285,21 @@ export const pauseGameAtom = atom(null, (get, set) => {
 // Restart game
 export const restartGameAtom = atom(null, (get, set) => {
   const soundEnabled = get(soundEnabledAtom);
+  const startLevel = get(startLevelAtom);
+  
+  // Reset NES randomizer
+  resetNESRandomizer();
   
   // Reset all game state
   set(boardAtom, Array(20).fill(null).map(() => Array(10).fill(null)));
   set(currentPieceAtom, null);
   set(nextPieceAtom, getRandomTetromino());
   set(scoreAtom, 0);
-  set(levelAtom, 1);
   set(linesAtom, 0);
   set(lastDropTimeAtom, 0);
+  
+  // Set level to start level
+  set(levelAtom, startLevel);
   
   // Set game status to playing
   set(setGameStatusAtom, 'playing');
