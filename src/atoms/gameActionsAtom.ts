@@ -3,13 +3,15 @@
 import { atom, type Getter, type Setter } from 'jotai';
 import type { Piece } from './currentPieceAtom';
 import type { TetrominoType } from '../utils/tetrominos';
-import { TETROMINOS, getRandomTetromino } from '../utils/tetrominos';
+import { TETROMINOS } from '../utils/tetrominos';
+import { getRandomTetromino } from '../utils/randomizer';
 import { checkSpawnCollision, getLandingPosition } from '../utils/collision';
 import { moveLeft, moveRight, moveDown, rotatePiece, rotatePieceCounterClockwise, lockPiece, getSpawnPosition } from '../utils/movement';
 import { clearLines, getCompletedRows } from '../utils/lineClearing';
 import { boardAtom } from './boardAtom';
 import { currentPieceAtom } from './currentPieceAtom';
 import { nextPieceAtom } from './nextPieceAtom';
+import { pieceHistoryAtom, resetPieceHistoryAtom, updatePieceHistoryAtom } from './pieceHistoryAtom';
 import { gameStatusAtom, setGameStatusAtom } from './gameStatusAtom';
 import { scoreAtom, levelAtom, linesAtom, addScoreAtom, addLinesAtom } from './scoreAtom';
 import { lastDropTimeAtom, updateLastDropTimeAtom } from './gameLoopAtom';
@@ -20,7 +22,8 @@ import { updateHighScoreAtom, openLeaderboardAtom } from './leaderboardAtom';
 // Spawn a new piece
 export const spawnPieceAtom = atom(null, (get, set) => {
   const board = get(boardAtom);
-  const nextPieceType = get(nextPieceAtom) || getRandomTetromino();
+  const previousPiece = get(pieceHistoryAtom);
+  const nextPieceType = get(nextPieceAtom) || getRandomTetromino(previousPiece);
   const tetromino = TETROMINOS[nextPieceType];
   
   // Check if spawn position is valid
@@ -40,7 +43,13 @@ export const spawnPieceAtom = atom(null, (get, set) => {
   };
   
   set(currentPieceAtom, newPiece);
-  set(nextPieceAtom, getRandomTetromino());
+  
+  // Generate next piece using NES randomizer with current piece as history
+  const nextPiece = getRandomTetromino(nextPieceType);
+  set(nextPieceAtom, nextPiece);
+  
+  // Update piece history
+  set(updatePieceHistoryAtom, nextPieceType);
 });
 
 // Move piece left
@@ -217,7 +226,13 @@ function lockPieceAtom(get: Getter, set: Setter) {
   };
   
   set(currentPieceAtom, newPiece);
-  set(nextPieceAtom, getRandomTetromino());
+  
+  // Generate next piece using NES randomizer with current piece as history
+  const nextPiece = getRandomTetromino(nextPieceType);
+  set(nextPieceAtom, nextPiece);
+  
+  // Update piece history
+  set(updatePieceHistoryAtom, nextPieceType);
 }
 
 // Start game
@@ -227,7 +242,8 @@ export const startGameAtom = atom(null, (get, set) => {
   // Reset all game state
   set(boardAtom, Array(20).fill(null).map(() => Array(10).fill(null)));
   set(currentPieceAtom, null);
-  set(nextPieceAtom, getRandomTetromino());
+  set(resetPieceHistoryAtom); // Reset piece history for NES randomizer
+  set(nextPieceAtom, getRandomTetromino(null)); // First piece has no history
   set(scoreAtom, 0);
   set(levelAtom, 1);
   set(linesAtom, 0);
@@ -258,7 +274,13 @@ export const startGameAtom = atom(null, (get, set) => {
   };
   
   set(currentPieceAtom, newPiece);
-  set(nextPieceAtom, getRandomTetromino());
+  
+  // Generate next piece using NES randomizer with first piece as history
+  const nextPiece = getRandomTetromino(nextPieceType);
+  set(nextPieceAtom, nextPiece);
+  
+  // Update piece history
+  set(updatePieceHistoryAtom, nextPieceType);
 });
 
 // Pause game
@@ -282,7 +304,8 @@ export const restartGameAtom = atom(null, (get, set) => {
   // Reset all game state
   set(boardAtom, Array(20).fill(null).map(() => Array(10).fill(null)));
   set(currentPieceAtom, null);
-  set(nextPieceAtom, getRandomTetromino());
+  set(resetPieceHistoryAtom); // Reset piece history for NES randomizer
+  set(nextPieceAtom, getRandomTetromino(null)); // First piece has no history
   set(scoreAtom, 0);
   set(levelAtom, 1);
   set(linesAtom, 0);
@@ -313,7 +336,13 @@ export const restartGameAtom = atom(null, (get, set) => {
   };
   
   set(currentPieceAtom, newPiece);
-  set(nextPieceAtom, getRandomTetromino());
+  
+  // Generate next piece using NES randomizer with first piece as history
+  const nextPiece = getRandomTetromino(nextPieceType);
+  set(nextPieceAtom, nextPiece);
+  
+  // Update piece history
+  set(updatePieceHistoryAtom, nextPieceType);
 });
 
 // Game tick - called by the game loop
