@@ -67,12 +67,6 @@ export const TETROMINOS: Record<TetrominoType, TetrominoShape> = {
   },
 };
 
-// Get random tetromino type
-export function getRandomTetromino(): TetrominoType {
-  const types: TetrominoType[] = ['I', 'O', 'T', 'S', 'Z', 'J', 'L'];
-  return types[Math.floor(Math.random() * types.length)];
-}
-
 // Rotate a shape 90 degrees clockwise
 export function rotateShape(shape: number[][]): number[][] {
   const rows = shape.length;
