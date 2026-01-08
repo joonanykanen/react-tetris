@@ -3,6 +3,10 @@
 import { atom } from 'jotai';
 import { atomWithStorage } from 'jotai/utils';
 
+// Start Level - The level the game starts at (NES A-TYPE rules)
+// Range: 1-15, Default: 1
+export const startLevelAtom = atomWithStorage('tetris-start-level', 1);
+
 // DAS Delay - Initial delay before auto-repeat starts (ms)
 // Range: 0-500ms, Default: 150ms (classic Tetris feel)
 export const dasDelayAtom = atomWithStorage('tetris-das-delay', 150);
@@ -21,6 +25,7 @@ export const volumeAtom = atomWithStorage('tetris-volume', 100);
 
 // Reset settings to defaults atom - action to reset all settings
 export const resetSettingsAtom = atom(null, (_, set) => {
+  set(startLevelAtom, 1);
   set(dasDelayAtom, 150);
   set(arrAtom, 50);
   set(softDropIntervalAtom, 50);
@@ -29,6 +34,7 @@ export const resetSettingsAtom = atom(null, (_, set) => {
 
 // Get all settings as an object
 export const getAllSettingsAtom = atom((get) => ({
+  startLevel: get(startLevelAtom),
   dasDelay: get(dasDelayAtom),
   arr: get(arrAtom),
   softDropInterval: get(softDropIntervalAtom),

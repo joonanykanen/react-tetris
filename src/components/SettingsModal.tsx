@@ -3,18 +3,20 @@
 import { useAtomValue, useSetAtom } from 'jotai';
 import { useEffect, useCallback } from 'react';
 import { isSettingsModalOpenAtom, setSettingsModalOpenAtom } from '../atoms/gameStatusAtom';
-import { dasDelayAtom, arrAtom, softDropIntervalAtom, volumeAtom, resetSettingsAtom } from '../atoms/settingsAtom';
+import { startLevelAtom, dasDelayAtom, arrAtom, softDropIntervalAtom, volumeAtom, resetSettingsAtom } from '../atoms/settingsAtom';
 import { updateVolume } from '../utils/sound';
 
 export default function SettingsModal() {
   const isOpen = useAtomValue(isSettingsModalOpenAtom);
   const setIsOpen = useSetAtom(setSettingsModalOpenAtom);
   
+  const startLevel = useAtomValue(startLevelAtom);
   const dasDelay = useAtomValue(dasDelayAtom);
   const arr = useAtomValue(arrAtom);
   const softDropInterval = useAtomValue(softDropIntervalAtom);
   const volume = useAtomValue(volumeAtom);
   
+  const setStartLevel = useSetAtom(startLevelAtom);
   const setDasDelay = useSetAtom(dasDelayAtom);
   const setArr = useSetAtom(arrAtom);
   const setSoftDropInterval = useSetAtom(softDropIntervalAtom);
@@ -54,7 +56,7 @@ export default function SettingsModal() {
   return (
     <>
       {/* Backdrop */}
-      <div 
+      <div
         className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40"
         onClick={handleBackdropClick}
       />
@@ -66,6 +68,24 @@ export default function SettingsModal() {
           <h2 className="text-3xl font-bold text-blue-400 text-center mb-6">
             SETTINGS
           </h2>
+
+          {/* Start Level */}
+          <div className="mb-6">
+            <div className="flex justify-between mb-2">
+              <label className="text-gray-300 font-medium">Start Level</label>
+              <span className="text-blue-400 font-mono">{startLevel}</span>
+            </div>
+            <input
+              type="range"
+              min="1"
+              max="15"
+              step="1"
+              value={startLevel}
+              onChange={(e) => setStartLevel(Number(e.target.value))}
+              className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-blue-500"
+            />
+            <p className="text-gray-500 text-xs mt-1">Starting level for new games (NES A-TYPE rules)</p>
+          </div>
 
           {/* DAS Delay */}
           <div className="mb-6">
