@@ -18,6 +18,7 @@ import { lastDropTimeAtom, updateLastDropTimeAtom } from './gameLoopAtom';
 import { soundEnabledAtom } from './soundAtom';
 import { playSound } from '../utils/sound';
 import { updateHighScoreAtom, openLeaderboardAtom } from './leaderboardAtom';
+import { startLevelAtom } from './settingsAtom';
 
 // Spawn a new piece
 export const spawnPieceAtom = atom(null, (get, set) => {
@@ -238,6 +239,7 @@ function lockPieceAtom(get: Getter, set: Setter) {
 // Start game
 export const startGameAtom = atom(null, (get, set) => {
   const soundEnabled = get(soundEnabledAtom);
+  const startLevel = get(startLevelAtom);
   
   // Reset all game state
   set(boardAtom, Array(20).fill(null).map(() => Array(10).fill(null)));
@@ -245,7 +247,7 @@ export const startGameAtom = atom(null, (get, set) => {
   set(resetPieceHistoryAtom); // Reset piece history for NES randomizer
   set(nextPieceAtom, getRandomTetromino(null)); // First piece has no history
   set(scoreAtom, 0);
-  set(levelAtom, 1);
+  set(levelAtom, startLevel);
   set(linesAtom, 0);
   set(lastDropTimeAtom, 0);
   
@@ -300,6 +302,7 @@ export const pauseGameAtom = atom(null, (get, set) => {
 // Restart game
 export const restartGameAtom = atom(null, (get, set) => {
   const soundEnabled = get(soundEnabledAtom);
+  const startLevel = get(startLevelAtom);
   
   // Reset all game state
   set(boardAtom, Array(20).fill(null).map(() => Array(10).fill(null)));
@@ -307,7 +310,7 @@ export const restartGameAtom = atom(null, (get, set) => {
   set(resetPieceHistoryAtom); // Reset piece history for NES randomizer
   set(nextPieceAtom, getRandomTetromino(null)); // First piece has no history
   set(scoreAtom, 0);
-  set(levelAtom, 1);
+  set(levelAtom, startLevel);
   set(linesAtom, 0);
   set(lastDropTimeAtom, 0);
   
